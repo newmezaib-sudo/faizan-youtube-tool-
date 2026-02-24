@@ -1,16 +1,12 @@
 import streamlit as st
 from bytez import Bytez
-import requests
+import urllib.parse
 import time
-import base64
 
-# 1. API Keys Setup
+# 1. Text Engine Setup (Bytez - Jo bilkul theek chal raha hai)
 bytez_api_key = "d5085219e259c1cd826160c24906dc05"
 bytez_client = Bytez(bytez_api_key)
 text_model = bytez_client.model("Qwen/Qwen2-7B-Instruct")
-
-# 👇 IMAGE ENGINE (Together AI - Aapki Nayi Key) 👇
-together_api_key = "key_CYSi6urosNdScea4JqXL3"
 
 # 2. UI Setup
 st.set_page_config(page_title="Faizan Automation System", layout="wide")
@@ -26,10 +22,8 @@ script_input = st.text_area("Video Script Paste Karein:", height=200)
 if st.button("Generate Timeline 🚀"):
     if not script_input.strip():
         st.warning("Pehle script enter karein!")
-    elif together_api_key == "YAHAN_APNI_TOGETHER_KEY_PASTE_KAREIN":
-        st.error("⚠️ Pehle code mein apni Together AI key paste karein!")
     else:
-        with st.spinner("Timeline aur Professional AI Images ban rahi hain (No crashes!)..."):
+        with st.spinner("Timeline aur Free AI Images ban rahi hain (Bina kisi API Key ke!)..."):
             
             # 4. Offline Timing Logic
             words = script_input.split()
@@ -60,34 +54,17 @@ if st.button("Generate Timeline 🚀"):
                         visual_prompt = str(txt_output).strip() if txt_output else f"High quality cinematic visual matching: {chunk}"
                         st.write(f"🧠 **AI Prompt:** {visual_prompt}")
                         
-                        # Step 2: Together AI se FLUX model use kar ke image banana
+                        # Step 2: Pollinations AI (NO API KEY REQUIRED!)
                         with st.spinner("🖼️ Generating AI Image..."):
-                            url = "https://api.together.xyz/v1/images/generations"
-                            headers = {
-                                "Authorization": f"Bearer {together_api_key}",
-                                "Content-Type": "application/json"
-                            }
-                            # Duniya ka fast aur best open-source model (FLUX)
-                            payload = {
-                                "model": "black-forest-labs/FLUX.1-schnell",
-                                "prompt": visual_prompt,
-                                "width": 1280,
-                                "height": 720,
-                                "steps": 4,
-                                "n": 1,
-                                "response_format": "b64_json"
-                            }
+                            # Text ko URL ke qabil banana
+                            safe_prompt = urllib.parse.quote(visual_prompt)
+                            # Direct Image URL (1280x720 HD)
+                            image_url = f"https://image.pollinations.ai/prompt/{safe_prompt}?width=1280&height=720&nologo=true&seed={index}"
                             
-                            response = requests.post(url, json=payload, headers=headers)
-                            
-                            if response.status_code == 200:
-                                image_b64 = response.json()["data"][0]["b64_json"]
-                                st.image(base64.b64decode(image_b64), use_container_width=True)
-                            else:
-                                st.error(f"⚠️ Image API Error: {response.json().get('error', {}).get('message', 'Unknown Error')}")
+                            st.image(image_url, use_container_width=True)
                                     
                     except Exception as e:
                         st.error(f"Error aaya: {e}")
                 
                 st.divider()
-                time.sleep(2)
+                time.sleep(1) # Chota sa break
