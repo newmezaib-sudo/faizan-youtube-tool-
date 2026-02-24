@@ -5,13 +5,12 @@ import time
 import base64
 
 # 1. API Keys Setup
-# Text Engine (Jo theek chal raha hai)
 bytez_api_key = "d5085219e259c1cd826160c24906dc05"
 bytez_client = Bytez(bytez_api_key)
 text_model = bytez_client.model("Qwen/Qwen2-7B-Instruct")
 
-# 👇 IMAGE ENGINE (Together AI - Yahan Apni Nayi Key Paste Karein) 👇
-together_api_key = "YAHAN_APNI_TOGETHER_KEY_PASTE_KAREIN"
+# 👇 IMAGE ENGINE (Together AI - Aapki Nayi Key) 👇
+together_api_key = "key_CYSi6urosNdScea4JqXL3"
 
 # 2. UI Setup
 st.set_page_config(page_title="Faizan Automation System", layout="wide")
