@@ -1,9 +1,10 @@
 import streamlit as st
 from bytez import Bytez
 import urllib.parse
+import requests
 import time
 
-# 1. Text Engine Setup (Bytez - Jo bilkul theek chal raha hai)
+# 1. Text Engine Setup (Bytez)
 bytez_api_key = "d5085219e259c1cd826160c24906dc05"
 bytez_client = Bytez(bytez_api_key)
 text_model = bytez_client.model("Qwen/Qwen2-7B-Instruct")
@@ -23,7 +24,7 @@ if st.button("Generate Timeline 🚀"):
     if not script_input.strip():
         st.warning("Pehle script enter karein!")
     else:
-        with st.spinner("Timeline aur Free AI Images ban rahi hain (Bina kisi API Key ke!)..."):
+        with st.spinner("Timeline aur Free AI Images ban rahi hain..."):
             
             # 4. Offline Timing Logic
             words = script_input.split()
@@ -44,27 +45,37 @@ if st.button("Generate Timeline 🚀"):
                     st.info(f"📜 **Spoken Text:**\n\n{chunk}")
                     
                 with col3:
-                    ai_prompt = f"Create a short, vivid, 1-sentence image generation prompt for this script snippet. The visual style and tone MUST perfectly match the '{niche_input}' niche. Script snippet: '{chunk}'. Return ONLY the prompt, nothing else."
+                    # Naya, sakht aur chota AI prompt
+                    ai_prompt = f"Write a single, very short visual description for a '{niche_input}' YouTube video scene about: '{chunk}'. Output only the visual description, no extra words or explanations."
                     
                     try:
                         # Step 1: Text Engine se AI Prompt nikalna
                         result = text_model.run(ai_prompt)
                         is_dict = isinstance(result, dict)
                         txt_output = result.get("output") if is_dict else getattr(result, "output", None)
-                        visual_prompt = str(txt_output).strip() if txt_output else f"High quality cinematic visual matching: {chunk}"
+                        
+                        visual_prompt = str(txt_output).strip() if txt_output else f"Cinematic visual of {chunk}"
+                        
+                        # Link ko tootne se bachane ke liye prompt ko chota karna (Max 200 characters)
+                        if len(visual_prompt) > 200:
+                            visual_prompt = visual_prompt[:200]
+                            
                         st.write(f"🧠 **AI Prompt:** {visual_prompt}")
                         
-                        # Step 2: Pollinations AI (NO API KEY REQUIRED!)
+                        # Step 2: Background mein image download kar ke lagana (Foolproof method)
                         with st.spinner("🖼️ Generating AI Image..."):
-                            # Text ko URL ke qabil banana
                             safe_prompt = urllib.parse.quote(visual_prompt)
-                            # Direct Image URL (1280x720 HD)
                             image_url = f"https://image.pollinations.ai/prompt/{safe_prompt}?width=1280&height=720&nologo=true&seed={index}"
                             
-                            st.image(image_url, use_container_width=True)
-                                    
+                            # Requests ke zariye safely image lana
+                            img_response = requests.get(image_url, timeout=30)
+                            if img_response.status_code == 200:
+                                st.image(img_response.content, use_container_width=True)
+                            else:
+                                st.error("⚠️ Image load nahi hui, network slow ho sakta hai.")
+                                        
                     except Exception as e:
                         st.error(f"Error aaya: {e}")
                 
                 st.divider()
-                time.sleep(1) # Chota sa break
+                time.sleep(1) # Chota sa break taake API block na ho
